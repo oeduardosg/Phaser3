@@ -26,6 +26,8 @@ var ground
 var bar
 var cursors
 var blue_balls
+var red_balls
+var game_over
 
 function preload() {
 
@@ -68,7 +70,22 @@ function create() {
 
     this.physics.add.collider(bar, blue_balls)
     this.physics.add.overlap(blue_balls, ground, disable_balls, null, this)
+    
+    red_balls = this.physics.add.group( {
+        key: "Red-ball",
+        repeat: Phaser.Math.Between(2, 4),
+        setXY: {x: Phaser.Math.Between(1, 100), y: 0, stepX: 70}
+    } )
 
+    red_balls.children.iterate(function (child) {
+        child.setBounce(1)
+        child.setCollideWorldBounds(true)
+        child.setVelocityY(Phaser.Math.Between(-160, -30))
+    } )
+
+    this.physics.add.collider(ground, red_balls)
+    this.physics.add.overlap(red_balls, bar, disable_balls, null, this)
+    
 }
 
 function update() {
@@ -77,8 +94,17 @@ function update() {
     else if(cursors.right.isDown) bar.setVelocityX(500)
     else bar.setVelocityX(0)
 
+    if(game_over) {
+        return;
+    }
+
 }
 
 function disable_balls(ball) {
     ball.disableBody(true, true)
+
+    if(red_balls.countActive(true) === 1) {
+        bar.setTint(0xff6347)
+        background.setTint(0x032606)
+    }
 }
